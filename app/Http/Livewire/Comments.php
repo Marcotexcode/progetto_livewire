@@ -5,14 +5,21 @@ namespace App\Http\Livewire;
 use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\Commento;
+use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 class Comments extends Component
 {
+    use WithPagination;
+    use WithFileUploads;
+
     /**
      * Variabili.
      */
+    protected $paginationTheme = 'bootstrap';
     public $nuovoCommento;
-    public $commenti = [];
+    public $immagine;
 
     /**
      * validazione. 
@@ -34,7 +41,9 @@ class Comments extends Component
      */
     public function render()
     {
-        return view('livewire.comments');
+        return view('livewire.comments', [
+            'commenti' => Commento::latest()->paginate(2)
+        ]);
     }
 
     /**
@@ -44,14 +53,17 @@ class Comments extends Component
     {
         $dati = $this->validate();
 
+        $img = $this->immagine->store('immagine', 'public');
+
         $nuovoCommento = Commento::create([
             'corpo'     => $dati['nuovoCommento'],
+            'foto'      => $this->immagine->hashName(),
             'user_id'   => auth()->user()->id
         ]); 
 
-        $this->commenti->prepend($nuovoCommento);
-
         $this->nuovoCommento = '';
+
+        $this->resetPage();
 
         session()->flash('message', 'Commento aggiunto');
     }
@@ -61,19 +73,15 @@ class Comments extends Component
      */
     public function elimina($commentoId) 
     {
-        Commento::find($commentoId)->delete();
+        $commento = Commento::find($commentoId);
 
-        $this->commenti = $this->commenti->except($commentoId);
+        Storage::disk('public')->delete('immagine/'. $commento->foto);
+        
+        $commento->delete();
+
+        $this->resetPage();
 
         session()->flash('message', 'Commento eliminato');
     }
 
-    /**
-     * In questo metodo vengono passati di dati per il componente,
-     * viene chiamato solo all'inizializzazione del componente.
-     */
-    public function mount()
-    {
-        $this->commenti = Commento::latest()->get();
-    }
 }
