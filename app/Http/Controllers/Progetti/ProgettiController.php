@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Progetti;
 
-use App\Http\Controllers\Controller;
+use App\Models\Commento;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ProgettiController extends Controller
 {
@@ -14,6 +15,8 @@ class ProgettiController extends Controller
 
     public function comment()
     {
-        return view('progetti.comment');
+        $commenti = Commento::where('user_id', auth()->user()->id)->get();
+
+        return view('progetti.comment', compact('commenti'));
     }
 }
