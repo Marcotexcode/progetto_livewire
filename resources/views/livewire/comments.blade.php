@@ -8,7 +8,7 @@
         @endif
     </div>
 
-    <div class="card mb-5">
+    <div class="card mb-5 prova">
         <div class="card-header text-center">
             <h3 for="comment" class="form-label ">Aggiungi commento</h3>  
         </div>
@@ -34,27 +34,28 @@
             </form>
         </div>
     </div>
-    @foreach ($commenti as $commento)
-        <div class="card my-2 shadow">
-            <div class="card-header d-flex justify-content-between">
-                <div>
-                    <strong>{{ ucwords($commento->utente->name) }}</strong> <span class="text-secondary mx-4">{{ $commento->created_at->diffForHumans() }}</span>
+    <div wire:sortable="updateCommentOrder">
+        @foreach ($commenti as $commento)
+            <div wire:sortable.item="{{ $commento->id }}" wire:key="commento-{{ $commento->id }}" class="card my-2 shadow">
+                <div class="card-header d-flex justify-content-between">
+                    <div>
+                        <strong>{{ ucwords($commento->utente->name) }}</strong> <span class="text-secondary mx-4">{{ $commento->created_at->diffForHumans() }}</span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-close h6" data-bs-dismiss="modal" aria-label="Close" wire:click="elimina({{ $commento->id }})"></button>
+                    </div>    
                 </div>
-                <div>
-                    <button type="button" class="btn-close h6" data-bs-dismiss="modal" aria-label="Close" wire:click="elimina({{ $commento->id }})"></button>
-                </div>    
+                
+                <div class="card-body d-flex">
+                    <div class="me-4">
+                        <img class="card-img-top img-thumbnail" src="{{ url('storage/immagine/'.$commento->foto) }}" style="width: 200px">
+                    </div>
+                    <div>
+                        {{ $commento->corpo }}
+                    </div>
+                </div>
             </div>
-            
-            <div class="card-body d-flex">
-                <div class="me-4">
-                    <img class="card-img-top img-thumbnail" src="{{ url('storage/immagine/'.$commento->foto) }}" style="width: 200px">
-                </div>
-                <div>
-                    {{ $commento->corpo }}
-                </div>
-            </div>
-        </div>
-    @endforeach
+        @endforeach
+    </div>
     {{ $commenti->links() }}
 </div>
-

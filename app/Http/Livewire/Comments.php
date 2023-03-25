@@ -42,23 +42,26 @@ class Comments extends Component
     public function render()
     {
         return view('livewire.comments', [
-            'commenti' => Commento::latest()->paginate(2)
+            'commenti' => Commento::orderBy('posizione', 'ASC')->paginate(20)
         ]);
     }
 
     /**
      * Metodo per aggiungere commento
      */
-    public function aggiungiCommento()
+    public function aggiungiCommento(Commento $commento)
     {
         $dati = $this->validate();
 
         $img = $this->immagine->store('immagine', 'public');
 
-        $nuovoCommento = Commento::create([
+        $commento = $commento->orderBy('posizione', 'DESC')->first();
+
+        $nuovoCommento = $commento->create([
             'corpo'     => $dati['nuovoCommento'],
             'foto'      => $this->immagine->hashName(),
-            'user_id'   => auth()->user()->id
+            'user_id'   => auth()->user()->id,
+            'posizione' => $commento->posizione + 1
         ]); 
 
         $this->nuovoCommento = '';
@@ -82,6 +85,15 @@ class Comments extends Component
         $this->resetPage();
 
         session()->flash('message', 'Commento eliminato');
+    }
+
+    public function updateCommentOrder($items) 
+    {
+      foreach ($items as $item) {
+            Commento::find($item['value'])->update([
+                'posizione' => $item['order']
+            ]);
+      }
     }
 
 }
