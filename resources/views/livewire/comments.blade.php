@@ -15,11 +15,18 @@
        
         <div class="card-body">
             <div class="mb-3">
-                @if ($immagine)
-                <div class="mb-3">
-                    <img class="img-thumbnail" src="{{ $immagine->temporaryUrl() }}" style="width: 300px">
+                <div wire:loading wire:target="immagine">
+                    <div class="spinner-border p-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
+
+                @if ($immagine)
+                    <div class="mb-3">
+                        <img class="img-thumbnail" src="{{ $immagine->temporaryUrl() }}" style="width: 300px">
+                    </div>
                 @endif
+                   
                 <label class="form-label">Immagine</label>
                 <input class="form-control" type="file" wire:model="immagine">
             </div>

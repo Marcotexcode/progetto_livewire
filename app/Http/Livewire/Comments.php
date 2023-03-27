@@ -55,13 +55,17 @@ class Comments extends Component
 
         $img = $this->immagine->store('immagine', 'public');
 
-        $commento = $commento->orderBy('posizione', 'DESC')->first();
+        $commento;
 
-        $nuovoCommento = $commento->create([
+        if ($commento) {
+            $commento = $commento->orderBy('posizione', 'DESC')->first();
+        }
+
+        $nuovoCommento = Commento::create([
             'corpo'     => $dati['nuovoCommento'],
             'foto'      => $this->immagine->hashName(),
             'user_id'   => auth()->user()->id,
-            'posizione' => $commento->posizione + 1
+            'posizione' => $commento ? $commento->posizione + 1 : 1
         ]); 
 
         $this->nuovoCommento = '';
